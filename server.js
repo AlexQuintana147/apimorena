@@ -41,7 +41,10 @@ function waitForSpringBoot(retries = 0) {
 async function startSpringBoot() {
     try {
         console.log('Iniciando aplicación Spring Boot...');
-        const springProcess = spawn('java', [
+        const javaPath = process.env.JAVA_HOME ? `${process.env.JAVA_HOME}/bin/java` : 'java';
+        console.log(`Usando Java desde: ${javaPath}`);
+        
+        const springProcess = spawn(javaPath, [
             '-Dserver.port=' + springBootPort,
             '-jar',
             'target/api-productos-1.0-SNAPSHOT.jar'
@@ -69,6 +72,8 @@ async function startSpringBoot() {
         
     } catch (error) {
         console.error('Error al iniciar Spring Boot:', error);
+        console.error('PATH:', process.env.PATH);
+        console.error('JAVA_HOME:', process.env.JAVA_HOME);
     }
 }
 
