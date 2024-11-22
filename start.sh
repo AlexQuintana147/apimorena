@@ -4,13 +4,19 @@
 java -Dserver.address=0.0.0.0 -Dserver.port=8080 -jar target/api-productos-1.0-SNAPSHOT.jar > spring.log 2>&1 &
 SPRING_PID=$!
 
-# Esperar a que Spring Boot inicie (aumentado a 60 segundos máximo)
+# Esperar a que Spring Boot inicie
 echo "Esperando a que Spring Boot inicie..."
 COUNTER=0
-while [ $COUNTER -lt 30 ]; do
+MAX_TRIES=45  # Aumentado a 90 segundos
+
+while [ $COUNTER -lt $MAX_TRIES ]; do
     if grep "Started ApiApplication" spring.log > /dev/null; then
         echo "Spring Boot iniciado correctamente"
-        break
+        # Verificar que el puerto esté realmente abierto
+        if nc -z localhost 8080; then
+            echo "Puerto 8080 está abierto y listo"
+            break
+        fi
     fi
     
     if ! kill -0 $SPRING_PID 2>/dev/null; then
@@ -19,12 +25,12 @@ while [ $COUNTER -lt 30 ]; do
         exit 1
     fi
     
-    echo "Esperando... ($COUNTER/30)"
+    echo "Esperando... ($COUNTER/$MAX_TRIES)"
     COUNTER=$((COUNTER+1))
     sleep 2
 done
 
-if [ $COUNTER -eq 30 ]; then
+if [ $COUNTER -eq $MAX_TRIES ]; then
     echo "Tiempo de espera agotado. Últimas líneas del log:"
     tail -n 50 spring.log
     exit 1

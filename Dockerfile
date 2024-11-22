@@ -1,8 +1,8 @@
 FROM maven:3.8-openjdk-11-slim
 
-# Instalar Node.js
+# Instalar Node.js y netcat
 RUN apt-get update && \
-    apt-get install -y curl && \
+    apt-get install -y curl netcat && \
     curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
     apt-get install -y nodejs
 
