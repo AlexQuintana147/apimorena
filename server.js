@@ -5,7 +5,7 @@ const http = require('http');
 
 const app = express();
 const port = process.env.PORT || 3000;
-const springBootPort = process.env.PORT || 8080;
+const springBootPort = process.env.SPRING_PORT || 8080;
 
 const MAX_RETRIES = 5;
 const RETRY_DELAY = 2000;
@@ -40,31 +40,18 @@ function waitForSpringBoot(retries = 0) {
 
 async function startSpringBoot() {
     try {
-        // En producción, asumimos que el JAR ya está compilado
-        if (process.env.NODE_ENV !== 'production') {
-            console.log('Verificando Maven...');
-            // Compilar con Maven solo en desarrollo
-            await new Promise((resolve, reject) => {
-                exec('mvn clean package', { cwd: process.cwd() }, (error, stdout, stderr) => {
-                    if (error) {
-                        console.error('Error al compilar con Maven:', error);
-                        reject(error);
-                        return;
-                    }
-                    console.log('Compilación Maven exitosa');
-                    resolve();
-                });
-            });
-        }
-
-        // Iniciar el JAR de Spring Boot
         console.log('Iniciando aplicación Spring Boot...');
         const springProcess = spawn('java', [
+            '-Dserver.port=' + springBootPort,
             '-jar',
             'target/api-productos-1.0-SNAPSHOT.jar'
         ], {
             cwd: process.cwd(),
-            stdio: 'pipe'
+            stdio: 'pipe',
+            env: {
+                ...process.env,
+                PORT: springBootPort.toString()
+            }
         });
 
         // Manejar la salida de Spring Boot
