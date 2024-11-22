@@ -1,13 +1,14 @@
 FROM maven:3.8-openjdk-11-slim
 
-# Instalar Node.js y netcat
+# Instalar Node.js
 RUN apt-get update && \
-    apt-get install -y curl netcat && \
+    apt-get install -y curl && \
     curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
     apt-get install -y nodejs
 
 WORKDIR /app
 
+# Copiar archivos del proyecto
 COPY . .
 
 # Instalar dependencias de Node.js
@@ -20,8 +21,9 @@ RUN mvn clean package
 EXPOSE 3000
 EXPOSE 8080
 
-# Script de inicio
+# Copiar y configurar script de inicio
 COPY start.sh /app/start.sh
 RUN chmod +x /app/start.sh
 
+# Comando para iniciar
 CMD ["/app/start.sh"]
