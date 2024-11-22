@@ -4,8 +4,8 @@ const path = require('path');
 const http = require('http');
 
 const app = express();
-const port = 3000;
-const springBootPort = 8080;
+const port = process.env.PORT || 3000;
+const springBootPort = process.env.SPRING_BOOT_PORT || 8080;
 
 const MAX_RETRIES = 5;
 const RETRY_DELAY = 2000;
