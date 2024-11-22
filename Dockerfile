@@ -17,9 +17,9 @@ RUN npm install
 # Compilar el proyecto Maven
 RUN mvn clean package
 
-# Exponer puertos
-EXPOSE 3000
+# Exponer puertos (cambiado el orden)
 EXPOSE 8080
+EXPOSE 3000
 
 # Copiar y configurar script de inicio
 COPY start.sh /app/start.sh
