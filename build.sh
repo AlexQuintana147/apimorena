@@ -6,5 +6,8 @@ sdk install java 17.0.2-open
 export JAVA_HOME="$HOME/.sdkman/candidates/java/current"
 export PATH="$JAVA_HOME/bin:$PATH"
 
+# Instalar Maven
+sdk install maven
+
 # Compilar el proyecto
-./mvnw clean package 
+mvn clean package 

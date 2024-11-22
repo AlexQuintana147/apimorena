@@ -1,20 +1,15 @@
 {
   "name": "proyecto-hola-mundo",
   "version": "1.0.0",
-  "main": "index.js",
   "scripts": {
     "start": "node server.js",
     "build": "chmod +x build.sh && ./build.sh && npm install"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "express": "^4.21.1"
-  },
-  "description": "",
   "engines": {
     "node": ">=16.0.0",
     "npm": ">=8.0.0"
+  },
+  "dependencies": {
+    "express": "^4.21.1"
   }
 }
