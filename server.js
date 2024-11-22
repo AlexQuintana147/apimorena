@@ -4,8 +4,8 @@ const path = require('path');
 const http = require('http');
 
 const app = express();
-const port = 3000;
-const springBootPort = 8080;
+const port = process.env.PORT || 3000;
+const springBootPort = process.env.PORT || 8080;
 
 const MAX_RETRIES = 5;
 const RETRY_DELAY = 2000;
@@ -94,7 +94,7 @@ app.get('/test', (req, res) => {
 app.all('*', (req, res) => {
     const options = {
         hostname: 'localhost',
-        port: springBootPort,
+        port: process.env.PORT || springBootPort,
         path: req.url,
         method: req.method,
         headers: {
