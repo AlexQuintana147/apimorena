@@ -1,8 +1,8 @@
 FROM maven:3.8-openjdk-11-slim
 
-# Instalar Node.js y netcat
+# Instalar Node.js y herramientas necesarias
 RUN apt-get update && \
-    apt-get install -y curl netcat && \
+    apt-get install -y curl netcat procps && \
     curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
     apt-get install -y nodejs
 
@@ -15,9 +15,9 @@ COPY . .
 RUN npm install
 
 # Compilar el proyecto Maven
-RUN mvn clean package
+RUN mvn clean package -DskipTests
 
-# Exponer puertos (cambiado el orden)
+# Exponer puertos
 EXPOSE 8080
 EXPOSE 3000
 

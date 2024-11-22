@@ -3,10 +3,14 @@ const http = require('http');
 
 const app = express();
 const port = process.env.PORT || 3000;
-const springBootHost = 'localhost';
-const springBootPort = 8080;
+const springBootHost = process.env.SPRING_BOOT_HOST || '127.0.0.1';
+const springBootPort = process.env.SPRING_BOOT_PORT || 8080;
 
 app.use(express.json());
+
+app.get('/health', (req, res) => {
+    res.json({ status: 'UP' });
+});
 
 app.get('/test', (req, res) => {
     res.json({ message: 'Servidor Node.js funcionando' });
