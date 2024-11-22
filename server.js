@@ -40,22 +40,22 @@ function waitForSpringBoot(retries = 0) {
 
 async function startSpringBoot() {
     try {
-        console.log('Verificando Maven...');
-        
-        // Compilar con Maven
-        const mvnProcess = await new Promise((resolve, reject) => {
-            exec('mvn clean package', { cwd: process.cwd() }, (error, stdout, stderr) => {
-                if (error) {
-                    console.error('Error al compilar con Maven:', error);
-                    console.error('Maven stdout:', stdout);
-                    console.error('Maven stderr:', stderr);
-                    reject(error);
-                    return;
-                }
-                console.log('Compilación Maven exitosa');
-                resolve();
+        // En producción, asumimos que el JAR ya está compilado
+        if (process.env.NODE_ENV !== 'production') {
+            console.log('Verificando Maven...');
+            // Compilar con Maven solo en desarrollo
+            await new Promise((resolve, reject) => {
+                exec('mvn clean package', { cwd: process.cwd() }, (error, stdout, stderr) => {
+                    if (error) {
+                        console.error('Error al compilar con Maven:', error);
+                        reject(error);
+                        return;
+                    }
+                    console.log('Compilación Maven exitosa');
+                    resolve();
+                });
             });
-        });
+        }
 
         // Iniciar el JAR de Spring Boot
         console.log('Iniciando aplicación Spring Boot...');
@@ -64,7 +64,7 @@ async function startSpringBoot() {
             'target/api-productos-1.0-SNAPSHOT.jar'
         ], {
             cwd: process.cwd(),
-            stdio: 'pipe'  // Capturar la salida
+            stdio: 'pipe'
         });
 
         // Manejar la salida de Spring Boot
