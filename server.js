@@ -3,7 +3,7 @@ const http = require('http');
 
 const app = express();
 const port = process.env.PORT || 3000;
-const springBootHost = '127.0.0.1';
+const springBootHost = 'localhost';
 const springBootPort = 8080;
 
 app.use(express.json());
