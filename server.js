@@ -92,14 +92,13 @@ app.get('/test', (req, res) => {
 });
 
 app.all('*', (req, res) => {
-    // Filtrar los headers para evitar problemas de proxy
     const filteredHeaders = { ...req.headers };
     delete filteredHeaders['host'];
     delete filteredHeaders['connection'];
     delete filteredHeaders['content-length'];
 
     const options = {
-        hostname: 'localhost',
+        hostname: '127.0.0.1',
         port: springBootPort,
         path: req.url,
         method: req.method,
