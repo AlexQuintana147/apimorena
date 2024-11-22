@@ -4,8 +4,8 @@ const path = require('path');
 const http = require('http');
 
 const app = express();
-const port = process.env.PORT || 3000;
-const springBootPort = process.env.SPRING_PORT || 8080;
+const port = 3000;
+const springBootPort = 8080;
 
 const MAX_RETRIES = 5;
 const RETRY_DELAY = 2000;
@@ -40,21 +40,31 @@ function waitForSpringBoot(retries = 0) {
 
 async function startSpringBoot() {
     try {
-        console.log('Iniciando aplicación Spring Boot...');
-        const javaPath = process.env.JAVA_HOME ? `${process.env.JAVA_HOME}/bin/java` : 'java';
-        console.log(`Usando Java desde: ${javaPath}`);
+        console.log('Verificando Maven...');
         
-        const springProcess = spawn(javaPath, [
-            '-Dserver.port=' + springBootPort,
+        // Compilar con Maven
+        const mvnProcess = await new Promise((resolve, reject) => {
+            exec('mvn clean package', { cwd: process.cwd() }, (error, stdout, stderr) => {
+                if (error) {
+                    console.error('Error al compilar con Maven:', error);
+                    console.error('Maven stdout:', stdout);
+                    console.error('Maven stderr:', stderr);
+                    reject(error);
+                    return;
+                }
+                console.log('Compilación Maven exitosa');
+                resolve();
+            });
+        });
+
+        // Iniciar el JAR de Spring Boot
+        console.log('Iniciando aplicación Spring Boot...');
+        const springProcess = spawn('java', [
             '-jar',
             'target/api-productos-1.0-SNAPSHOT.jar'
         ], {
             cwd: process.cwd(),
-            stdio: 'pipe',
-            env: {
-                ...process.env,
-                PORT: springBootPort.toString()
-            }
+            stdio: 'pipe'  // Capturar la salida
         });
 
         // Manejar la salida de Spring Boot
@@ -72,8 +82,6 @@ async function startSpringBoot() {
         
     } catch (error) {
         console.error('Error al iniciar Spring Boot:', error);
-        console.error('PATH:', process.env.PATH);
-        console.error('JAVA_HOME:', process.env.JAVA_HOME);
     }
 }
 
@@ -84,14 +92,20 @@ app.get('/test', (req, res) => {
 });
 
 app.all('*', (req, res) => {
+    // Filtrar los headers para evitar problemas de proxy
+    const filteredHeaders = { ...req.headers };
+    delete filteredHeaders['host'];
+    delete filteredHeaders['connection'];
+    delete filteredHeaders['content-length'];
+
     const options = {
         hostname: 'localhost',
-        port: process.env.PORT || springBootPort,
+        port: springBootPort,
         path: req.url,
         method: req.method,
         headers: {
-            'Content-Type': 'application/json',
-            ...req.headers
+            ...filteredHeaders,
+            'Content-Type': 'application/json'
         }
     };
 
@@ -109,7 +123,8 @@ app.all('*', (req, res) => {
     });
 
     if (req.body && Object.keys(req.body).length > 0) {
-        proxyReq.write(JSON.stringify(req.body));
+        const bodyData = JSON.stringify(req.body);
+        proxyReq.write(bodyData);
     }
 
     proxyReq.end();
